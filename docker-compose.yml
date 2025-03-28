@@ -1,0 +1,49 @@
+services:
+  citus_coordinator:
+    image: citusdata/citus:latest
+    container_name: citus_coordinator
+    ports:
+      - "5435:5432"  # Changed to avoid conflict
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - coordinator_data:/var/lib/postgresql/data
+    command: postgres -c shared_preload_libraries=citus
+
+  citus_worker_1:
+    image: citusdata/citus:latest
+    container_name: citus_worker_1
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - worker1_data:/var/lib/postgresql/data
+    command: postgres -c shared_preload_libraries=citus
+
+  citus_worker_2:
+    image: citusdata/citus:latest
+    container_name: citus_worker_2
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - worker2_data:/var/lib/postgresql/data
+    command: postgres -c shared_preload_libraries=citus
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - citus_coordinator
+
+volumes:
+  coordinator_data:
+  worker1_data:
+  worker2_data:
